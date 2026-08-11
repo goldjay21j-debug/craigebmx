@@ -1,99 +1,94 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { bikes, currency, priceLabel, type Bike } from "./products";
 
-const CATALOG_URL = "https://wa.me/c/16089573848";
 const WHATSAPP_NUMBER = "16089573848";
+const photoCount = bikes.reduce((total, bike) => total + bike.images.length, 0);
+const FEATURED_BIKE_IDS = [1, 3, 5, 7, 12, 14];
+const featuredBikes = FEATURED_BIKE_IDS.map((id) => bikes.find((bike) => bike.id === id)).filter((bike): bike is Bike => Boolean(bike));
 
-type Bike = {
-  id: number;
-  name: string;
-  era: "80s" | "90s";
-  style: "Freestyle" | "Street" | "Race";
-  image: string;
-  note: string;
-  tone: string;
-};
-
-const bikes: Bike[] = [
-  {
-    id: 1,
-    name: "Neon Freestyle ’86",
-    era: "80s",
-    style: "Freestyle",
-    image: "/images/haro-green.jpg",
-    note: "Mag wheels · full pad set · restored",
-    tone: "lime",
-  },
-  {
-    id: 2,
-    name: "Chrome Sunset ’88",
-    era: "80s",
-    style: "Race",
-    image: "/images/bmx-black.jpg",
-    note: "Chrome finish · 20-inch wheels · race stance",
-    tone: "sunset",
-  },
-  {
-    id: 3,
-    name: "Brick Lane ’94",
-    era: "90s",
-    style: "Street",
-    image: "/images/bmx-street.jpg",
-    note: "Tough frame · street tyres · compact geometry",
-    tone: "red",
-  },
-  {
-    id: 4,
-    name: "Mag Wheel Master ’89",
-    era: "80s",
-    style: "Freestyle",
-    image: "/images/haro-master.jpg",
-    note: "Period details · rotor ready · collector feel",
-    tone: "blue",
-  },
-  {
-    id: 5,
-    name: "Parkline Pro ’93",
-    era: "90s",
-    style: "Freestyle",
-    image: "/images/hero-bmx.jpg",
-    note: "Low profile · responsive front end · park setup",
-    tone: "ink",
-  },
-  {
-    id: 6,
-    name: "Boardwalk Twenty ’90",
-    era: "90s",
-    style: "Street",
-    image: "/images/bmx-black.jpg",
-    note: "Classic silhouette · everyday ride · clean build",
-    tone: "cream",
-  },
+const categories = [
+  { label: "Freestyle", note: "Iconic street and flatland builds", image: bikes[6].images[0] },
+  { label: "Race", note: "Fast, light golden-era machines", image: bikes[2].images[0] },
+  { label: "GT", note: "The unmistakable 1980s originals", image: bikes[4].images[0] },
+  { label: "All", title: "The full collection", note: "Every bike in the Craige catalogue", image: bikes[0].images[0] },
 ];
 
-const filters = ["All", "80s", "90s", "Freestyle", "Street", "Race"];
+const heroSlides = [
+  {
+    image: "/history/bmx-local-race-gate-2013.jpg",
+    alt: "BMX riders lined up at the Desert Downs start gate in El Paso in 2013",
+    year: "Roots · late 1960s",
+    tab: "California spark",
+    title: "Built in dirt. Fueled by kids.",
+    note: "BMX began when California riders copied motocross on backyard tracks. The gate-drop ritual still carries that original rebel energy.",
+    event: "Photo · Desert Downs BMX · 2013",
+    credit: "Spc. Jarred Woods / U.S. Army · Public domain",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:BMX_racing_opportunities_in_El_Paso_130710-A-ZA744-454.jpg",
+    position: "center 44%",
+  },
+  {
+    image: "/history/bmx-world-cup-gate-2007.jpg",
+    alt: "Eight BMX racers waiting at the 2007 UCI BMX Supercross World Cup starting gate in Frejus",
+    year: "World stage · 1982",
+    tab: "First World Champs",
+    title: "One backyard idea went global.",
+    note: "The first official BMX World Championships landed in Dayton, Ohio, in 1982—just over a decade after the sport’s California spark.",
+    event: "Photo · UCI BMX Supercross World Cup · Fréjus 2007",
+    credit: "Fabrizio Tarizzo · CC BY-SA 2.0",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:Starting_gate_2007_BMX_World_Cup.jpg",
+    position: "center 52%",
+  },
+  {
+    image: "/history/bmx-munich-mash-2018.jpg",
+    alt: "A BMX freestyle rider airborne during the Munich Mash BMX Park Final in 2018",
+    year: "Olympic era · 2008 → today",
+    tab: "BMX goes Olympic",
+    title: "Same nerve. Bigger crowd.",
+    note: "BMX racing debuted at Beijing 2008, and freestyle joined at Tokyo 2020. The scene still runs on style, progression and pure stoke.",
+    event: "Photo · Munich Mash BMX Park Final · 2018",
+    credit: "Usien · CC BY-SA 3.0",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:Munich_Mash_Festival_2018_BMX_Freestyle_0001.jpg",
+    position: "center 46%",
+  },
+];
 
 function whatsappLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 export default function Home() {
-  const [filter, setFilter] = useState("All");
-  const [saved, setSaved] = useState<number[]>([]);
+  const [query, setQuery] = useState("");
+  const [cart, setCart] = useState<number[]>([]);
+  const [cartReady, setCartReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedBike, setSelectedBike] = useState<Bike | null>(null);
+  const [selectedImage, setSelectedImage] = useState(0);
   const [notice, setNotice] = useState("");
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [heroPaused, setHeroPaused] = useState(false);
 
-  const shownBikes = useMemo(
-    () =>
-      filter === "All"
-        ? bikes
-        : bikes.filter((bike) => bike.era === filter || bike.style === filter),
-    [filter],
-  );
+  const cartItems = bikes.filter((bike) => cart.includes(bike.id));
+  const subtotal = cartItems.reduce((total, bike) => total + (bike.price ?? 0), 0);
+  const hasPriceOnRequest = cartItems.some((bike) => bike.price === null);
 
-  const savedBikes = bikes.filter((bike) => saved.includes(bike.id));
+  useEffect(() => {
+    const stored = window.localStorage.getItem("craige-bike-cart");
+    if (stored) {
+      try {
+        setCart(JSON.parse(stored));
+      } catch {
+        window.localStorage.removeItem("craige-bike-cart");
+      }
+    }
+    setCartReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (cartReady) window.localStorage.setItem("craige-bike-cart", JSON.stringify(cart));
+  }, [cart, cartReady]);
 
   useEffect(() => {
     if (!notice) return;
@@ -101,319 +96,386 @@ export default function Home() {
     return () => window.clearTimeout(timeout);
   }, [notice]);
 
-  function toggleSaved(bike: Bike) {
-    const isSaved = saved.includes(bike.id);
-    setSaved((current) =>
-      isSaved ? current.filter((id) => id !== bike.id) : [...current, bike.id],
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (heroPaused || reducedMotion) return;
+    const interval = window.setInterval(() => {
+      setHeroSlide((current) => (current + 1) % heroSlides.length);
+    }, 6200);
+    return () => window.clearInterval(interval);
+  }, [heroPaused]);
+
+  useEffect(() => {
+    if (!drawerOpen && !selectedBike) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDrawerOpen(false);
+        setSelectedBike(null);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [drawerOpen, selectedBike]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const revealItems = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    root.classList.add("motion-ready");
+
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      revealItems.forEach((item) => item.classList.add("is-visible"));
+      return () => root.classList.remove("motion-ready");
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.13, rootMargin: "0px 0px -5% 0px" },
     );
-    setNotice(isSaved ? `${bike.name} removed` : `${bike.name} added to your ride list`);
+
+    revealItems.forEach((item) => observer.observe(item));
+
+    const heroImage = document.querySelector<HTMLElement>(".hero-slides");
+    let frame = 0;
+    const updateParallax = () => {
+      frame = 0;
+      heroImage?.style.setProperty("--parallax-y", `${Math.min(window.scrollY * 0.035, 22)}px`);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateParallax);
+    };
+
+    updateParallax();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      root.classList.remove("motion-ready");
+    };
+  }, []);
+
+  function chooseCategory(category: string) {
+    window.location.href = category === "All" ? "/shop" : `/shop?style=${encodeURIComponent(category)}`;
   }
 
-  const listMessage = `Hi Craige Bikes! I’m interested in: ${savedBikes
-    .map((bike) => bike.name)
-    .join(", ")}. Could you confirm current stock, condition and price?`;
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const normalizedQuery = query.trim();
+    window.location.href = normalizedQuery ? `/shop?search=${encodeURIComponent(normalizedQuery)}` : "/shop";
+  }
+
+  function openBike(bike: Bike) {
+    setSelectedBike(bike);
+    setSelectedImage(0);
+  }
+
+  function moveHero(direction: number) {
+    setHeroSlide((current) => (current + direction + heroSlides.length) % heroSlides.length);
+  }
+
+  function addToCart(bike: Bike) {
+    if (cart.includes(bike.id)) {
+      setNotice(`${bike.name} is already in your cart`);
+      return;
+    }
+    setCart((current) => [...current, bike.id]);
+    setNotice(`${bike.name} added to cart`);
+  }
+
+  function removeFromCart(bike: Bike) {
+    setCart((current) => current.filter((id) => id !== bike.id));
+    setNotice(`${bike.name} removed`);
+  }
+
+  const orderMessage = [
+    "Hello Craige Bikes. I’d like to order the following bikes:",
+    ...cartItems.map((bike) => `• ${bike.name} — ${priceLabel(bike.price)}`),
+    `Subtotal: ${currency.format(subtotal)}`,
+    ...(hasPriceOnRequest ? ["Please also confirm the price-on-request item(s)."] : []),
+    "Please confirm availability and quote shipping to my location.",
+  ].join("\n");
 
   return (
-    <main>
-      <div className="announcement">
-        <span>Fresh finds added weekly</span>
-        <span aria-hidden="true">★</span>
-        <span>Worldwide enquiries welcome</span>
-        <span aria-hidden="true">★</span>
-        <span>Live stock on WhatsApp</span>
-      </div>
+    <main id="top">
+      <div className="page-shell">
+        <header className="site-header">
+          <a className="wordmark" href="#top" aria-label="Craige Bikes home">
+            <img className="brand-logo" src="/brand/craige-bikes-wordmark-v2.png" alt="Craige Bikes" />
+          </a>
 
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Craige Bikes home">
-          <span className="brand-mark">CB</span>
-          <span>
-            <strong>CRAIGE BIKES</strong>
-            <small>80s / 90s BMX specialists</small>
-          </span>
-        </a>
+          <button className="menu-button" type="button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
+            <span /><span /><span />
+          </button>
 
-        <button
-          className="menu-button"
-          type="button"
-          aria-label="Toggle navigation"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((current) => !current)}
-        >
-          <span />
-          <span />
-        </button>
+          <nav className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Main navigation">
+            <a href="/shop" onClick={() => setMenuOpen(false)}>Shop bikes</a>
+            <a href="#categories" onClick={() => setMenuOpen(false)}>Categories</a>
+            <a href="/history" onClick={() => setMenuOpen(false)}>BMX history</a>
+            <a href="#process" onClick={() => setMenuOpen(false)}>How to buy</a>
+          </nav>
 
-        <nav className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Main navigation">
-          <a href="#bikes" onClick={() => setMenuOpen(false)}>Bikes</a>
-          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</a>
-          <a href="#story" onClick={() => setMenuOpen(false)}>Our story</a>
-          <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-        </nav>
-
-        <button className="ride-list-button" type="button" onClick={() => setDrawerOpen(true)}>
-          Ride list <span>{saved.length}</span>
-        </button>
-      </header>
-
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow"><span>Since the golden era</span> / rebuilt for now</p>
-          <h1>
-            Old school soul.
-            <em>Built to ride.</em>
-          </h1>
-          <p className="hero-intro">
-            Iconic BMX energy from the 80s and 90s—curated for collectors,
-            weekend riders and anyone who still remembers the sound of mag wheels on concrete.
-          </p>
-          <div className="hero-actions">
-            <a className="button button-dark" href="#bikes">Find your bike <span>↘</span></a>
-            <a className="text-link" href={CATALOG_URL} target="_blank" rel="noreferrer">
-              Open live catalog <span>↗</span>
-            </a>
-          </div>
-          <div className="hero-proof">
-            <div className="avatar-stack" aria-hidden="true">
-              <span>CK</span><span>RB</span><span>MT</span>
-            </div>
-            <p><strong>Rider-approved finds</strong><br />Real people. Real BMX nostalgia.</p>
-          </div>
-        </div>
-
-        <div className="hero-visual">
-          <img src="/images/hero-bmx.jpg" alt="BMX rider on a blue bike with red tyres" />
-          <div className="hero-sticker sticker-top">20″<small>pure fun</small></div>
-          <div className="hero-sticker sticker-bottom">NO<br />BRAKES<br />ON STYLE</div>
-          <div className="photo-caption">Archive energy / modern service</div>
-        </div>
-      </section>
-
-      <div className="marquee" aria-label="Craige Bikes highlights">
-        <div>
-          <span>Restored legends</span><i>✦</i><span>90s street heat</span><i>✦</i>
-          <span>Collector-ready</span><i>✦</i><span>Worldwide enquiries</span><i>✦</i>
-          <span>Restored legends</span><i>✦</i><span>90s street heat</span><i>✦</i>
-        </div>
-      </div>
-
-      <section className="shop-section" id="bikes">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow"><span>Current picks</span> / from the catalog</p>
-            <h2>Choose your era.</h2>
-          </div>
-          <p>
-            Save the bikes you like, then send your ride list to us on WhatsApp for live stock,
-            exact condition and pricing.
-          </p>
-        </div>
-
-        <div className="filters" role="group" aria-label="Filter bikes">
-          {filters.map((item) => (
-            <button
-              type="button"
-              key={item}
-              className={filter === item ? "active" : ""}
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-            >
-              {item}
+          <div className="header-actions">
+            <a className="support-link" href={whatsappLink("Hello Craige Bikes. I need help choosing a BMX bike.")} target="_blank" rel="noreferrer">Support</a>
+            <button className="cart-button" type="button" onClick={() => setDrawerOpen(true)} aria-label={`Open cart with ${cart.length} items`}>
+              <span aria-hidden="true">▱</span>
+              <strong>Cart</strong>
+              <em>{cart.length}</em>
             </button>
-          ))}
-        </div>
+          </div>
+        </header>
 
-        <div className="product-grid">
-          {shownBikes.map((bike, index) => {
-            const isSaved = saved.includes(bike.id);
-            return (
-              <article className={`product-card tone-${bike.tone}`} key={bike.id}>
-                <div className="product-image-wrap">
-                  <img src={bike.image} alt={`${bike.name} BMX bike`} />
-                  <span className="era-badge">{bike.era}</span>
-                  <button
-                    type="button"
-                    className={isSaved ? "save-button saved" : "save-button"}
-                    onClick={() => toggleSaved(bike)}
-                    aria-label={`${isSaved ? "Remove" : "Save"} ${bike.name}`}
-                    aria-pressed={isSaved}
-                  >
-                    {isSaved ? "♥" : "♡"}
-                  </button>
-                  {index === 0 && <span className="new-stamp">TOP PICK</span>}
-                </div>
-                <div className="product-info">
-                  <div className="product-meta"><span>{bike.style}</span><span>20-inch</span></div>
-                  <h3>{bike.name}</h3>
-                  <p>{bike.note}</p>
-                  <div className="product-buy-row">
-                    <span className="live-price"><i /> Live price</span>
-                    <a
-                      href={whatsappLink(`Hi Craige Bikes! I’m interested in the ${bike.name}. Is it currently available? Please share the condition and price.`)}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Ask about ${bike.name} on WhatsApp`}
-                    >
-                      Ask about it <span>↗</span>
+        <section
+          className="hero history-hero"
+          onMouseEnter={() => setHeroPaused(true)}
+          onMouseLeave={() => setHeroPaused(false)}
+          onFocusCapture={() => setHeroPaused(true)}
+          onBlurCapture={() => setHeroPaused(false)}
+          aria-roledescription="carousel"
+          aria-label="Old-school BMX highlights"
+        >
+          <div className="hero-slides" aria-live="polite">
+            {heroSlides.map((slide, index) => (
+              <figure className={heroSlide === index ? "hero-slide is-active" : "hero-slide"} key={slide.image} aria-hidden={heroSlide !== index}>
+                <img src={slide.image} alt={heroSlide === index ? slide.alt : ""} style={{ objectPosition: slide.position }} />
+              </figure>
+            ))}
+          </div>
+          <div className="hero-shade" aria-hidden="true" />
+          <div className="hero-copy" data-reveal>
+            <span className="eyebrow light"><i /> For riders, collectors &amp; dreamers</span>
+            <h1>Old-school BMX.<br /><em>Forever RAD.</em></h1>
+            <p>We live for Tuff Wheels, sky-high bars, Day-Glo paint and the bikes that made a generation want to ride. Find your golden-era legend and keep the stoke alive.</p>
+            <form className="hero-search" onSubmit={submitSearch} role="search">
+              <span aria-hidden="true">⌕</span>
+              <label className="sr-only" htmlFor="bike-search">Search the bike collection</label>
+              <input id="bike-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search “GT Performer”" />
+              <button type="submit">Search</button>
+            </form>
+            <div className="hero-links">
+              <a className="button button-white" href="/shop">Shop the RAD collection</a>
+              <a className="text-link light-link" href="/history">Meet the legends <span>→</span></a>
+            </div>
+            <div className="hero-milestones" aria-label="Historic BMX milestones">
+              {heroSlides.map((slide, index) => (
+                <button
+                  type="button"
+                  className={heroSlide === index ? "active" : ""}
+                  key={slide.tab}
+                  onClick={() => setHeroSlide(index)}
+                  aria-pressed={heroSlide === index}
+                >
+                  <span>{index === 0 ? "Late ’60s" : index === 1 ? "1982" : "2008"}</span>
+                  <small>{slide.tab}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-story-card" data-reveal>
+            <span>{heroSlides[heroSlide].year}</span>
+            <strong>{heroSlides[heroSlide].title}</strong>
+            <p>{heroSlides[heroSlide].note}</p>
+            <small>{heroSlides[heroSlide].event}</small>
+            <a href={heroSlides[heroSlide].creditUrl} target="_blank" rel="noreferrer">{heroSlides[heroSlide].credit} ↗</a>
+          </div>
+
+          <div className="hero-controls" aria-label="Choose a hero image">
+            <button type="button" onClick={() => moveHero(-1)} aria-label="Previous image">←</button>
+            <div className="hero-dots">
+              {heroSlides.map((slide, index) => (
+                <button
+                  type="button"
+                  className={heroSlide === index ? "active" : ""}
+                  key={slide.image}
+                  onClick={() => setHeroSlide(index)}
+                  aria-label={`Show slide ${index + 1}: ${slide.title}`}
+                  aria-current={heroSlide === index ? "true" : undefined}
+                />
+              ))}
+            </div>
+            <span>{String(heroSlide + 1).padStart(2, "0")} / {String(heroSlides.length).padStart(2, "0")}</span>
+            <button type="button" onClick={() => moveHero(1)} aria-label="Next image">→</button>
+          </div>
+        </section>
+
+        <section className="trust-strip" aria-label="Shopping benefits" data-reveal>
+          <div><span>✓</span><p><strong>The real-deal details</strong><small>Full galleries, specs and collector notes</small></p></div>
+          <div><span>◇</span><p><strong>Golden-era rides</strong><small>80s and 90s machines with serious soul</small></p></div>
+          <div><span>↗</span><p><strong>Stoke delivered worldwide</strong><small>Personal shipping confirmation</small></p></div>
+        </section>
+
+        <section className="history-preview" id="history" data-reveal>
+          <div className="history-preview-image">
+            <img src="/history/haro-master-neon-1986.jpg" alt="Neon green 1986 Haro Freestyle Master" />
+            <span>Golden-era BMX · 1970 onward</span>
+          </div>
+          <div className="history-preview-copy">
+            <span className="eyebrow light"><i /> Roots, rebels &amp; riders</span>
+            <h2>Before it was vintage,<br /><em>it was a revolution.</em></h2>
+            <p>From dirt-lot racing to freestyle’s first purpose-built machines, meet the people and moments that made BMX forever RAD.</p>
+            <a className="button button-white" href="/history">Ride through BMX history <span>→</span></a>
+          </div>
+        </section>
+
+        <section className="category-section" id="categories">
+          <div className="section-title-row" data-reveal>
+            <div><span className="eyebrow"><i /> Pick your kind of RAD</span><h2>Choose your era.<br />Find your ride.</h2></div>
+            <button className="text-link" type="button" onClick={() => chooseCategory("All")}>View all bikes <span>→</span></button>
+          </div>
+          <div className="category-grid">
+            {categories.map((category) => (
+              <button className="category-card" type="button" key={category.label} onClick={() => chooseCategory(category.label)} data-reveal>
+                <img src={category.image} alt="" />
+                <span><strong>{category.title ?? category.label}</strong><small>{category.note}</small></span>
+                <i>→</i>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="confidence-section" id="confidence">
+          <div className="confidence-copy" data-reveal>
+            <span className="eyebrow light"><i /> No mystery builds</span>
+            <h2>The right parts.<br />The real deal.</h2>
+            <p>Every Craige Bikes listing puts the collector details up front. No digging through chat threads. No missing prices. Just the ride, its story and everything you need to know before it joins your crew.</p>
+            <a className="button button-white" href="#collection">Browse the marketplace</a>
+          </div>
+          <div className="confidence-visual" data-reveal>
+            <img src={bikes[4].images[0]} alt="1987 GT Pro Freestyle Tour in Maui Blue" />
+            <div className="value-card">
+              <span>Craige collection</span>
+              <h3>1987 GT Pro Freestyle Tour</h3>
+              <div><small>Listed price</small><strong>{priceLabel(bikes[4].price)}</strong></div>
+              <div className="value-meter"><i /><i /><i /></div>
+              <p><b>Collector grade</b><span>Complete photo gallery</span></p>
+            </div>
+          </div>
+        </section>
+
+        <section className="marketplace-section" id="collection">
+          <div className="section-title-row marketplace-title" data-reveal>
+            <div><span className="eyebrow"><i /> Six stand-out builds</span><h2>Featured RAD rides.</h2><p>A curated taste of the Craige Bikes collection.</p></div>
+            <a className="button button-blue" href="/shop">View all {bikes.length} bikes <span>→</span></a>
+          </div>
+
+          <div className="product-grid">
+              {featuredBikes.map((bike) => {
+                const inCart = cart.includes(bike.id);
+                return (
+                  <article className="product-card" key={bike.id} data-reveal>
+                    <a className="product-image" href={`/shop/${bike.slug}`} aria-label={`View ${bike.name}`}>
+                      <img src={bike.images[0]} alt={`${bike.name} BMX bicycle`} />
+                      <span className="listing-badge">Featured</span>
+                      <span className="photo-count">{bike.images.length} photos</span>
                     </a>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="catalog-cta">
-          <div>
-            <span className="catalog-kicker">The stock changes fast</span>
-            <h3>See every bike available right now.</h3>
+                    <div className="product-info">
+                      <div className="product-kicker"><span>{bike.year} · {bike.style}</span><a href={`/shop/${bike.slug}`} aria-label={`View ${bike.name}`}>＋</a></div>
+                      <h3><a href={`/shop/${bike.slug}`}>{bike.name}</a></h3>
+                      <p>{bike.brand} · 20-inch BMX · Excellent collector condition</p>
+                      <div className="product-price"><strong>{priceLabel(bike.price)}</strong>{bike.price !== null && <small>USD</small>}</div>
+                      <button className={inCart ? "add-button added" : "add-button"} type="button" onClick={() => addToCart(bike)} disabled={inCart}>
+                        {inCart ? "Added to cart" : "Add to cart"}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
           </div>
-          <a className="button button-yellow" href={CATALOG_URL} target="_blank" rel="noreferrer">
-            Browse WhatsApp catalog <span>↗</span>
-          </a>
-        </div>
-      </section>
 
-      <section className="steps-section" id="how-it-works">
-        <div className="steps-title">
-          <p className="eyebrow"><span>Simple & human</span> / no mystery boxes</p>
-          <h2>Three steps.<br />Then you ride.</h2>
-        </div>
-        <div className="steps-grid">
-          <article>
-            <span>01</span><div className="step-icon">⌕</div>
-            <h3>Pick your favorite</h3>
-            <p>Browse the collection here or open the live WhatsApp catalog for the newest arrivals.</p>
-          </article>
-          <article>
-            <span>02</span><div className="step-icon">✉</div>
-            <h3>Chat with Craige</h3>
-            <p>Ask for close-ups, condition notes, sizing help and a confirmed price before you commit.</p>
-          </article>
-          <article>
-            <span>03</span><div className="step-icon">➜</div>
-            <h3>Pay & ship</h3>
-            <p>Agree the details securely in WhatsApp, then we pack your bike carefully and get it moving.</p>
-          </article>
-        </div>
-      </section>
-
-      <section className="story-section" id="story">
-        <div className="story-image">
-          <img src="/images/haro-green.jpg" alt="Neon green old school freestyle BMX bike" />
-          <span className="story-year">1986</span>
-          <span className="story-scribble">ride loud!</span>
-        </div>
-        <div className="story-copy">
-          <p className="eyebrow"><span>Why Craige Bikes</span> / built on obsession</p>
-          <h2>We never grew out of BMX.</h2>
-          <p className="story-lead">
-            Craige Bikes is for riders who know a bicycle can be a time machine. We chase the colors,
-            shapes and attitude that made the 80s and 90s unforgettable.
-          </p>
-          <div className="story-points">
-            <div><strong>Curated, never random</strong><p>Every bike is picked for character, rideability and that unmistakable old-school silhouette.</p></div>
-            <div><strong>Details before deals</strong><p>We share honest condition notes and current photos so you know what you’re getting.</p></div>
+          <div className="featured-shop-cta" data-reveal>
+            <p><strong>Want the complete line-up?</strong><span>The remaining {bikes.length - featuredBikes.length} collector bikes live in the full shop.</span></p>
+            <a className="button button-blue" href="/shop">Explore the full shop <span>→</span></a>
           </div>
-          <a className="text-link" href={whatsappLink("Hi Craige Bikes! I’d like help finding the right old-school BMX for me.")} target="_blank" rel="noreferrer">
-            Talk bikes with us <span>↗</span>
-          </a>
-        </div>
-      </section>
+        </section>
 
-      <section className="manifesto">
-        <p>Chrome. Mags. Pad sets. Pegs.</p>
-        <h2>Some things never go out of style.</h2>
-        <a href="#bikes">Shop the old school <span>↓</span></a>
-      </section>
+        <section className="process-section" id="process">
+          <div className="process-heading" data-reveal><span className="eyebrow light"><i /> Simple and personal</span><h2>A better way to<br />buy a legend.</h2><p>Buying a collectible bike should feel considered, clear and exciting from the first photo to delivery day.</p></div>
+          <div className="process-steps" data-reveal>
+            <article><span>01</span><div><h3>Browse and compare</h3><p>Search the full collection, explore every gallery and review the important details.</p></div></article>
+            <article><span>02</span><div><h3>Build your order</h3><p>Add your favourites to the cart and see a clear itemised subtotal.</p></div></article>
+            <article><span>03</span><div><h3>Confirm with us</h3><p>Send your order for availability, shipping and secure payment arrangements.</p></div></article>
+          </div>
+        </section>
 
-      <section className="faq-section" id="faq">
-        <div>
-          <p className="eyebrow"><span>Need to know</span> / before you roll</p>
-          <h2>Questions,<br />answered.</h2>
-        </div>
-        <div className="faq-list">
-          <details>
-            <summary>Are the bikes on this page in stock?<span>+</span></summary>
-            <p>Availability moves quickly. The WhatsApp catalog is the live source, and we confirm stock, condition and price in chat before purchase.</p>
-          </details>
-          <details>
-            <summary>Can I ask for more photos?<span>+</span></summary>
-            <p>Absolutely. Send us the bike name or a catalog screenshot and we’ll share the details you need.</p>
-          </details>
-          <details>
-            <summary>Do you ship bikes?<span>+</span></summary>
-            <p>Shipping options depend on your location and the bike. Message us with your city and country for a current quote.</p>
-          </details>
-          <details>
-            <summary>How do I pay?<span>+</span></summary>
-            <p>Payment instructions are confirmed directly with Craige Bikes after stock, condition, shipping and the final total are agreed.</p>
-          </details>
-        </div>
-      </section>
+        <section className="service-section" data-reveal>
+          <div><span className="eyebrow"><i /> Personal service</span><h2>Talk to a real collector.</h2><p>Tell us what you collect, what you used to ride, or which details you want checked. We’ll help you choose with confidence.</p></div>
+          <a className="button button-blue" href={whatsappLink("Hello Craige Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer">Chat with Craige Bikes <span>↗</span></a>
+        </section>
 
-      <footer>
-        <div className="footer-cta">
-          <p>Your next favorite bike is probably waiting.</p>
-          <h2>Ready to roll it back?</h2>
-          <a className="button button-yellow" href={CATALOG_URL} target="_blank" rel="noreferrer">
-            Open the live catalog <span>↗</span>
-          </a>
-        </div>
-        <div className="footer-bottom">
-          <a className="brand footer-brand" href="#top">
-            <span className="brand-mark">CB</span>
-            <span><strong>CRAIGE BIKES</strong><small>80s / 90s BMX specialists</small></span>
-          </a>
+        <footer>
+          <div className="footer-top">
+            <a className="wordmark footer-brand" href="#top" aria-label="Craige Bikes home"><img className="brand-logo" src="/brand/craige-bikes-wordmark-v2.png" alt="Craige Bikes" /></a>
+            <p>The independent marketplace for original old-school BMX bikes.</p>
+            <a className="button button-white" href="/shop">Shop all bikes</a>
+          </div>
           <div className="footer-links">
-            <a href="#bikes">Bikes</a><a href="#story">Our story</a><a href="#faq">FAQ</a>
-            <a href={CATALOG_URL} target="_blank" rel="noreferrer">WhatsApp</a>
+            <nav aria-label="Footer marketplace links"><strong>Marketplace</strong><a href="/shop">All bikes</a><a href="/shop?style=Freestyle">Freestyle</a><a href="/shop?style=Race">Race</a></nav>
+            <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="#confidence">Our standards</a><a href="#process">How to buy</a><a href={whatsappLink("Hello Craige Bikes. I need support.")} target="_blank" rel="noreferrer">Contact support</a></nav>
+            <div><strong>Catalogued with care</strong><p>{bikes.length} classic bikes<br />{photoCount} catalogue photographs<br />Worldwide order support</p></div>
           </div>
-          <p>© {new Date().getFullYear()} Craige Bikes.<br />Keep it old school.</p>
-        </div>
-        <p className="photo-credit">Archive imagery used for collection previews. Live product photos, stock and pricing are available in the WhatsApp catalog.</p>
-      </footer>
+          <div className="footer-bottom"><span>© {new Date().getFullYear()} Craige Bikes</span><span>Old-school BMX · Built for collectors</span></div>
+        </footer>
+      </div>
 
-      <a
-        className="whatsapp-float"
-        href={whatsappLink("Hi Craige Bikes! I’m looking for an old-school BMX.")}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Chat with Craige Bikes on WhatsApp"
-      >
-        <span>WA</span><strong>Chat with Craige</strong>
-      </a>
+      <a className="whatsapp-float" href={whatsappLink("Hello Craige Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer" aria-label="Contact Craige Bikes on WhatsApp"><span>W</span><strong>Bike support</strong></a>
+
+      {selectedBike && (
+        <div className="product-shell" role="dialog" aria-modal="true" aria-labelledby="product-title">
+          <button className="product-backdrop" type="button" aria-label="Close product details" onClick={() => setSelectedBike(null)} />
+          <section className="product-dialog">
+            <button className="dialog-close" type="button" aria-label="Close product details" onClick={() => setSelectedBike(null)}>×</button>
+            <div className="gallery">
+              <div className="gallery-main"><img src={selectedBike.images[selectedImage]} alt={`${selectedBike.name}, view ${selectedImage + 1}`} /></div>
+              <div className="gallery-thumbs" aria-label="Product photographs">
+                {selectedBike.images.map((image, index) => (
+                  <button key={image} className={selectedImage === index ? "active" : ""} type="button" onClick={() => setSelectedImage(index)} aria-label={`View photograph ${index + 1}`}><img src={image} alt="" /></button>
+                ))}
+              </div>
+            </div>
+            <div className="product-details">
+              <span className="listing-badge dialog-badge">Collector grade</span>
+              <p className="dialog-kicker">{selectedBike.year} · {selectedBike.brand} · {selectedBike.style}</p>
+              <h2 id="product-title">{selectedBike.name}</h2>
+              <strong className="dialog-price">{priceLabel(selectedBike.price)} {selectedBike.price !== null && <small>USD</small>}</strong>
+              <p className="dialog-description">{selectedBike.description}</p>
+              <div className="spec-list">
+                {selectedBike.highlights.map((highlight) => <div key={highlight}><span>✓</span><p>{highlight}</p></div>)}
+              </div>
+              <div className="shipping-note"><span>↗</span><p><strong>Worldwide order support</strong><small>Shipping is confirmed personally for your location.</small></p></div>
+              <button className="button button-blue detail-cart" type="button" onClick={() => addToCart(selectedBike)} disabled={cart.includes(selectedBike.id)}>
+                {cart.includes(selectedBike.id) ? "Already in cart" : `Add to cart · ${priceLabel(selectedBike.price)}`}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {drawerOpen && (
-        <div className="drawer-shell" role="dialog" aria-modal="true" aria-labelledby="ride-list-title">
-          <button className="drawer-backdrop" type="button" aria-label="Close ride list" onClick={() => setDrawerOpen(false)} />
+        <div className="drawer-shell" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+          <button className="drawer-backdrop" type="button" aria-label="Close cart" onClick={() => setDrawerOpen(false)} />
           <aside className="drawer">
-            <div className="drawer-head">
-              <div><p className="eyebrow">Your shortlist</p><h2 id="ride-list-title">Ride list ({saved.length})</h2></div>
-              <button type="button" onClick={() => setDrawerOpen(false)} aria-label="Close ride list">×</button>
-            </div>
-            {savedBikes.length ? (
-              <>
-                <div className="drawer-items">
-                  {savedBikes.map((bike) => (
-                    <div className="drawer-item" key={bike.id}>
-                      <img src={bike.image} alt="" />
-                      <div><span>{bike.era} / {bike.style}</span><strong>{bike.name}</strong></div>
-                      <button type="button" onClick={() => toggleSaved(bike)} aria-label={`Remove ${bike.name}`}>×</button>
-                    </div>
-                  ))}
-                </div>
-                <a className="button button-yellow drawer-action" href={whatsappLink(listMessage)} target="_blank" rel="noreferrer">
-                  Send list on WhatsApp <span>↗</span>
-                </a>
-                <p className="drawer-note">We’ll reply with live availability, condition and pricing.</p>
-              </>
-            ) : (
-              <div className="empty-list">
-                <span>♡</span><h3>Your ride list is empty.</h3>
-                <p>Save a few bikes and we’ll help you compare them on WhatsApp.</p>
-                <button type="button" onClick={() => setDrawerOpen(false)}>Browse bikes</button>
-              </div>
-            )}
+            <div className="drawer-head"><div><span className="eyebrow"><i /> Your order</span><h2 id="cart-title">Cart ({cart.length})</h2></div><button type="button" onClick={() => setDrawerOpen(false)} aria-label="Close cart">×</button></div>
+            {cartItems.length ? <>
+              <div className="drawer-items">{cartItems.map((bike) => <div className="drawer-item" key={bike.id}><img src={bike.images[0]} alt="" /><div><span>{bike.year} · {bike.brand}</span><strong>{bike.name}</strong><em>{priceLabel(bike.price)}</em></div><button type="button" onClick={() => removeFromCart(bike)} aria-label={`Remove ${bike.name}`}>×</button></div>)}</div>
+              <div className="cart-total"><span>Subtotal{hasPriceOnRequest && <small> + price on request</small>}</span><strong>{currency.format(subtotal)} <small>USD</small></strong></div>
+              <a className="button button-blue drawer-action" href={whatsappLink(orderMessage)} target="_blank" rel="noreferrer">Continue to order review</a>
+              <p className="drawer-note">Final availability, shipping and payment are confirmed before dispatch.</p>
+            </> : <div className="empty-cart"><span>▱</span><h3>Your cart is empty</h3><p>Add a classic bike to begin your order.</p><button type="button" onClick={() => setDrawerOpen(false)}>Browse the collection</button></div>}
           </aside>
         </div>
       )}
