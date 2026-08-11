@@ -12,7 +12,7 @@ const categories = [
   { label: "Freestyle", note: "Iconic street and flatland builds", image: bikes[6].images[0] },
   { label: "Race", note: "Fast, light golden-era machines", image: bikes[2].images[0] },
   { label: "GT", note: "The unmistakable 1980s originals", image: bikes[4].images[0] },
-  { label: "All", title: "The full collection", note: "Every bike in the Craige catalogue", image: bikes[0].images[0] },
+  { label: "All", title: "The full collection", note: "Every bike in Craig's catalogue", image: bikes[0].images[0] },
 ];
 
 const heroSlides = [
@@ -203,7 +203,7 @@ export default function Home() {
   }
 
   const orderMessage = [
-    "Hello Craige Bikes. I’d like to order the following bikes:",
+    "Hello Craig's Bikes. I’d like to order the following bikes:",
     ...cartItems.map((bike) => `• ${bike.name} — ${priceLabel(bike.price)}`),
     `Subtotal: ${currency.format(subtotal)}`,
     ...(hasPriceOnRequest ? ["Please also confirm the price-on-request item(s)."] : []),
@@ -214,8 +214,8 @@ export default function Home() {
     <main id="top">
       <div className="page-shell">
         <header className="site-header">
-          <a className="wordmark" href="#top" aria-label="Craige Bikes home">
-            <img className="brand-logo" src="/brand/craige-bikes-wordmark-v2.png" alt="Craige Bikes" />
+          <a className="wordmark" href="#top" aria-label="Craig's Bikes home">
+            <img className="brand-logo" src="/brand/craigs-bikes-wordmark-v3.png" alt="Craig's Bikes" />
           </a>
 
           <button className="menu-button" type="button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
@@ -230,7 +230,7 @@ export default function Home() {
           </nav>
 
           <div className="header-actions">
-            <a className="support-link" href={whatsappLink("Hello Craige Bikes. I need help choosing a BMX bike.")} target="_blank" rel="noreferrer">Support</a>
+            <a className="support-link" href={whatsappLink("Hello Craig's Bikes. I need help choosing a BMX bike.")} target="_blank" rel="noreferrer">Support</a>
             <button className="cart-button" type="button" onClick={() => setDrawerOpen(true)} aria-label={`Open cart with ${cart.length} items`}>
               <span aria-hidden="true">▱</span>
               <strong>Cart</strong>
@@ -352,13 +352,13 @@ export default function Home() {
           <div className="confidence-copy" data-reveal>
             <span className="eyebrow light"><i /> No mystery builds</span>
             <h2>The right parts.<br />The real deal.</h2>
-            <p>Every Craige Bikes listing puts the collector details up front. No digging through chat threads. No missing prices. Just the ride, its story and everything you need to know before it joins your crew.</p>
+            <p>Every Craig's Bikes listing puts the collector details up front. No digging through chat threads. No missing prices. Just the ride, its story and everything you need to know before it joins your crew.</p>
             <a className="button button-white" href="#collection">Browse the marketplace</a>
           </div>
           <div className="confidence-visual" data-reveal>
             <img src={bikes[4].images[0]} alt="1987 GT Pro Freestyle Tour in Maui Blue" />
             <div className="value-card">
-              <span>Craige collection</span>
+              <span>Craig's collection</span>
               <h3>1987 GT Pro Freestyle Tour</h3>
               <div><small>Listed price</small><strong>{priceLabel(bikes[4].price)}</strong></div>
               <div className="value-meter"><i /><i /><i /></div>
@@ -369,7 +369,7 @@ export default function Home() {
 
         <section className="marketplace-section" id="collection">
           <div className="section-title-row marketplace-title" data-reveal>
-            <div><span className="eyebrow"><i /> Six stand-out builds</span><h2>Featured RAD rides.</h2><p>A curated taste of the Craige Bikes collection.</p></div>
+            <div><span className="eyebrow"><i /> Six stand-out builds</span><h2>Featured RAD rides.</h2><p>A curated taste of the Craig's Bikes collection.</p></div>
             <a className="button button-blue" href="/shop">View all {bikes.length} bikes <span>→</span></a>
           </div>
 
@@ -414,25 +414,25 @@ export default function Home() {
 
         <section className="service-section" data-reveal>
           <div><span className="eyebrow"><i /> Personal service</span><h2>Talk to a real collector.</h2><p>Tell us what you collect, what you used to ride, or which details you want checked. We’ll help you choose with confidence.</p></div>
-          <a className="button button-blue" href={whatsappLink("Hello Craige Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer">Chat with Craige Bikes <span>↗</span></a>
+          <a className="button button-blue" href={whatsappLink("Hello Craig's Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer">Chat with Craig's Bikes <span>↗</span></a>
         </section>
 
         <footer>
           <div className="footer-top">
-            <a className="wordmark footer-brand" href="#top" aria-label="Craige Bikes home"><img className="brand-logo" src="/brand/craige-bikes-wordmark-v2.png" alt="Craige Bikes" /></a>
+            <a className="wordmark footer-brand" href="#top" aria-label="Craig's Bikes home"><img className="brand-logo" src="/brand/craigs-bikes-wordmark-v3.png" alt="Craig's Bikes" /></a>
             <p>The independent marketplace for original old-school BMX bikes.</p>
             <a className="button button-white" href="/shop">Shop all bikes</a>
           </div>
           <div className="footer-links">
             <nav aria-label="Footer marketplace links"><strong>Marketplace</strong><a href="/shop">All bikes</a><a href="/shop?style=Freestyle">Freestyle</a><a href="/shop?style=Race">Race</a></nav>
-            <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="#confidence">Our standards</a><a href="#process">How to buy</a><a href={whatsappLink("Hello Craige Bikes. I need support.")} target="_blank" rel="noreferrer">Contact support</a></nav>
+            <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="#confidence">Our standards</a><a href="#process">How to buy</a><a href={whatsappLink("Hello Craig's Bikes. I need support.")} target="_blank" rel="noreferrer">Contact support</a></nav>
             <div><strong>Catalogued with care</strong><p>{bikes.length} classic bikes<br />{photoCount} catalogue photographs<br />Worldwide order support</p></div>
           </div>
-          <div className="footer-bottom"><span>© {new Date().getFullYear()} Craige Bikes</span><span>Old-school BMX · Built for collectors</span></div>
+          <div className="footer-bottom"><span>© {new Date().getFullYear()} Craig's Bikes</span><span>Old-school BMX · Built for collectors</span></div>
         </footer>
       </div>
 
-      <a className="whatsapp-float" href={whatsappLink("Hello Craige Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer" aria-label="Contact Craige Bikes on WhatsApp"><span>W</span><strong>Bike support</strong></a>
+      <a className="whatsapp-float" href={whatsappLink("Hello Craig's Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer" aria-label="Contact Craig's Bikes on WhatsApp"><span>W</span><strong>Bike support</strong></a>
 
       {selectedBike && (
         <div className="product-shell" role="dialog" aria-modal="true" aria-labelledby="product-title">

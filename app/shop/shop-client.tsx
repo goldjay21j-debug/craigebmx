@@ -35,7 +35,7 @@ export function ShopClient() {
           <p>Original race machines, freestyle icons and the colourways that still stop collectors in their tracks.</p>
         </div>
         <aside>
-          <span>Craige collection</span>
+          <span>Craig's collection</span>
           <strong>{bikes.length} golden-era bikes</strong>
           <small>Each with its own gallery, history and collector details.</small>
         </aside>

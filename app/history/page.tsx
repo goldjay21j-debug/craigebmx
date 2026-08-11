@@ -4,7 +4,7 @@ import { StoreFooter } from "../store-footer";
 import { StoreHeader } from "../store-header";
 
 export const metadata: Metadata = {
-  title: "The History of BMX | Craige Bikes",
+  title: "The History of BMX | Craig's Bikes",
   description: "Ride through the roots of BMX, from early Pedal-Cross racing to freestyle pioneers, big air and the Olympic era.",
 };
 
@@ -40,7 +40,7 @@ const historyStories = [
     copy: "Eddie Fiola won five King of the Skateparks titles, four NORA Cups and is credited with the first 540 in a pipe. He also helped shape GT’s iconic Pro Performer.",
     sourceLabel: "USA BMX Hall of Fame",
     sourceUrl: "https://www.usabmx.com/about/hall-of-fame/1524",
-    credit: "Craige Bikes catalogue photograph",
+    credit: "Craig's Bikes catalogue photograph",
   },
   {
     name: "Mat Hoffman",
@@ -101,7 +101,7 @@ export default function HistoryPage() {
             </div>
           </div>
           <aside data-reveal>
-            <span>Craige Bikes archive</span>
+            <span>Craig's Bikes archive</span>
             <strong>Speed. Style. Progression.</strong>
             <small>A short ride through the moments and makers that gave old-school BMX its soul.</small>
           </aside>

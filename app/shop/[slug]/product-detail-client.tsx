@@ -9,8 +9,8 @@ export function ProductDetailClient({ bike }: { bike: Bike }) {
   const [selectedImage, setSelectedImage] = useState(0);
 
   const orderMessage = bike.price === null
-    ? `Hello Craige Bikes. I’m interested in the ${bike.name}. Please confirm its price, availability, shipping and payment details.`
-    : `Hello Craige Bikes. I’m interested in the ${bike.name} listed at ${priceLabel(bike.price)}. Please confirm availability, shipping and payment details.`;
+    ? `Hello Craig's Bikes. I’m interested in the ${bike.name}. Please confirm its price, availability, shipping and payment details.`
+    : `Hello Craig's Bikes. I’m interested in the ${bike.name} listed at ${priceLabel(bike.price)}. Please confirm availability, shipping and payment details.`;
 
   return (
     <>

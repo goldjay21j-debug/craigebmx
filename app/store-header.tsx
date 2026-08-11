@@ -9,8 +9,8 @@ export function StoreHeader() {
 
   return (
     <header className="site-header store-header">
-      <a className="wordmark" href="/" aria-label="Craige Bikes home">
-        <img className="brand-logo" src="/brand/craige-bikes-wordmark-v2.png" alt="Craige Bikes" />
+      <a className="wordmark" href="/" aria-label="Craig's Bikes home">
+        <img className="brand-logo" src="/brand/craigs-bikes-wordmark-v3.png" alt="Craig's Bikes" />
       </a>
 
       <button
@@ -31,8 +31,8 @@ export function StoreHeader() {
       </nav>
 
       <div className="header-actions">
-        <a className="support-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craige Bikes. I need help choosing a BMX bike.")}`} target="_blank" rel="noreferrer">Support</a>
-        <a className="store-chat-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craige Bikes. I have a question about the collection.")}`} target="_blank" rel="noreferrer">
+        <a className="support-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craig's Bikes. I need help choosing a BMX bike.")}`} target="_blank" rel="noreferrer">Support</a>
+        <a className="store-chat-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craig's Bikes. I have a question about the collection.")}`} target="_blank" rel="noreferrer">
           <span>W</span><strong>Chat</strong>
         </a>
       </div>

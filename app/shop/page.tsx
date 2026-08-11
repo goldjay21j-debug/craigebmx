@@ -4,8 +4,8 @@ import { StoreHeader } from "../store-header";
 import { ShopClient } from "./shop-client";
 
 export const metadata: Metadata = {
-  title: "Shop Old-School BMX Bikes | Craige Bikes",
-  description: "Browse the complete Craige Bikes collection of collector-grade freestyle and race BMX bikes from the golden era.",
+  title: "Shop Old-School BMX Bikes | Craig's Bikes",
+  description: "Browse the complete Craig's Bikes collection of collector-grade freestyle and race BMX bikes from the golden era.",
 };
 
 export default function ShopPage() {

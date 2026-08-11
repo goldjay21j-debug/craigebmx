@@ -14,13 +14,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const bike = bikes.find((item) => item.slug === slug);
-  if (!bike) return { title: "Bike not found | Craige Bikes" };
+  if (!bike) return { title: "Bike not found | Craig's Bikes" };
 
   return {
-    title: `${bike.name} | Craige Bikes`,
+    title: `${bike.name} | Craig's Bikes`,
     description: `${bike.description} View ${bike.images.length} photographs, collector details, availability and price information.`,
     openGraph: {
-      title: `${bike.name} | Craige Bikes`,
+      title: `${bike.name} | Craig's Bikes`,
       description: bike.description,
       images: [{ url: bike.images[0], alt: `${bike.name} BMX bicycle` }],
     },
