@@ -1,0 +1,118 @@
+:root {
+  --theme-success-500: #1f7aff;
+  --theme-success-600: #1266e8;
+  --theme-elevation-0: #07101f;
+  --theme-elevation-50: #0c1728;
+  --theme-elevation-100: #101e32;
+  --theme-elevation-150: #172741;
+  --theme-elevation-200: #213451;
+}
+
+.craigs-brand-logo {
+  display: block;
+  width: min(240px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+.craigs-brand-icon {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.craigs-dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+  margin: 0 0 2rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  overflow: hidden;
+  border: 1px solid rgba(91, 162, 255, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(25, 111, 255, 0.3), transparent 34%),
+    linear-gradient(135deg, #0f1c31, #07101f 72%);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+}
+
+.craigs-dashboard-kicker {
+  display: inline-flex;
+  margin-bottom: 0.75rem;
+  color: #69a8ff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.craigs-dashboard-hero h1 {
+  max-width: 680px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.craigs-dashboard-hero p {
+  max-width: 650px;
+  margin: 1rem 0 0;
+  color: #aebed5;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.craigs-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(92px, 1fr));
+  gap: 0.75rem;
+}
+
+.craigs-dashboard-stats div {
+  min-width: 100px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(12px);
+}
+
+.craigs-dashboard-stats strong,
+.craigs-dashboard-stats span {
+  display: block;
+}
+
+.craigs-dashboard-stats strong {
+  color: #fff;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.craigs-dashboard-stats span {
+  margin-top: 0.45rem;
+  color: #8fa3bf;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .craigs-dashboard-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .craigs-dashboard-stats {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .craigs-dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
