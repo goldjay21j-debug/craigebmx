@@ -1,26 +1,52 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { readdir } from "node:fs/promises";
-import test from "node:test";
+import { fileURLToPath } from "node:url";
+import test, { after, before } from "node:test";
+
+const projectDirectory = fileURLToPath(new URL("../", import.meta.url));
+const nextExecutable = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
+const port = 3400 + (process.pid % 500);
+const origin = `http://127.0.0.1:${port}`;
+let nextServer;
+
+before(async () => {
+  nextServer = spawn(process.execPath, [nextExecutable, "start", "-H", "127.0.0.1", "-p", String(port)], {
+    cwd: projectDirectory,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  let startupError = "";
+  nextServer.stderr.on("data", (chunk) => {
+    startupError += chunk.toString();
+  });
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    if (nextServer.exitCode !== null) {
+      throw new Error(`Next.js exited before tests started. ${startupError}`);
+    }
+
+    try {
+      const response = await fetch(origin);
+      if (response.ok) return;
+    } catch {
+      // The production server is still starting.
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`Timed out waiting for Next.js. ${startupError}`);
+});
+
+after(() => {
+  nextServer?.kill();
+});
 
 async function render(pathname = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
-  const { default: worker } = await import(workerUrl.href);
-
-  return worker.fetch(
-    new Request(`http://localhost${pathname}`, {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
-  );
+  return fetch(`${origin}${pathname}`, {
+    headers: { accept: "text/html" },
+  });
 }
 
 test("server-renders the Craig's Bikes storefront", async () => {
