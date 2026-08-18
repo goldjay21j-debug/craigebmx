@@ -88,7 +88,7 @@ for (const bike of bikes) {
     })
   }
 
-  process.stdout.write(`Seeded ${bike.id}/30: ${bike.name}\n`)
+  process.stdout.write(`Seeded ${bike.id}/${bikes.length}: ${bike.name}\n`)
 }
 
 await payload.updateGlobal({
