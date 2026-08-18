@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { bikes } from "../../products";
 import { StoreFooter } from "../../store-footer";
@@ -17,12 +16,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const bike = bikes.find((item) => item.slug === slug);
   if (!bike) return { title: "Bike not found | Craig's Bikes" };
 
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
   const title = `${bike.name} | Craig's Bikes`;
-  const image = `${origin}${bike.images[0]}`;
+  const image = bike.images[0];
 
   return {
     title,

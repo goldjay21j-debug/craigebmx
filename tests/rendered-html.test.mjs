@@ -1,47 +1,49 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { readdir } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { readdir, stat } from "node:fs/promises";
+import { createServer } from "node:http";
+import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import test, { after, before } from "node:test";
 
 const projectDirectory = fileURLToPath(new URL("../", import.meta.url));
-const nextExecutable = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
+const outputDirectory = join(projectDirectory, "out");
 const port = 3400 + (process.pid % 500);
 const origin = `http://127.0.0.1:${port}`;
-let nextServer;
+let staticServer;
 
-before(async () => {
-  nextServer = spawn(process.execPath, [nextExecutable, "start", "-H", "127.0.0.1", "-p", String(port)], {
-    cwd: projectDirectory,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+const contentTypes = {
+  ".css": "text/css; charset=utf-8",
+  ".html": "text/html; charset=utf-8",
+  ".jpg": "image/jpeg",
+  ".js": "text/javascript; charset=utf-8",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+};
 
-  let startupError = "";
-  nextServer.stderr.on("data", (chunk) => {
-    startupError += chunk.toString();
-  });
-
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (nextServer.exitCode !== null) {
-      throw new Error(`Next.js exited before tests started. ${startupError}`);
-    }
-
+before(() => new Promise((resolve, reject) => {
+  staticServer = createServer(async (request, response) => {
     try {
-      const response = await fetch(origin);
-      if (response.ok) return;
+      const pathname = decodeURIComponent(new URL(request.url ?? "/", origin).pathname);
+      const safePath = normalize(pathname).replace(/^([.][.][/\\])+/, "");
+      let filePath = join(outputDirectory, safePath);
+      const fileStats = await stat(filePath).catch(() => null);
+      if (fileStats?.isDirectory()) filePath = join(filePath, "index.html");
+      if (!fileStats && !extname(filePath)) filePath = join(filePath, "index.html");
+      await stat(filePath);
+      response.writeHead(200, { "content-type": contentTypes[extname(filePath)] ?? "application/octet-stream" });
+      createReadStream(filePath).pipe(response);
     } catch {
-      // The production server is still starting.
+      response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+      response.end("Not found");
     }
+  });
+  staticServer.once("error", reject);
+  staticServer.listen(port, "127.0.0.1", resolve);
+}));
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
-
-  throw new Error(`Timed out waiting for Next.js. ${startupError}`);
-});
-
-after(() => {
-  nextServer?.kill();
-});
+after(() => staticServer?.close());
 
 async function render(pathname = "/") {
   return fetch(`${origin}${pathname}`, {
