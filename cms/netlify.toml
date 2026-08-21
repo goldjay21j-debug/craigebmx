@@ -10,7 +10,7 @@
 
 [build]
   base = "cms"
-  command = "npm ci --include=dev && npm run build && npm run db:setup"
+  command = "npm ci --include=dev && npm run build && (npm run db:setup || echo \"db:setup failed - see /health\")"
   publish = ".next"
 
 [build.environment]
