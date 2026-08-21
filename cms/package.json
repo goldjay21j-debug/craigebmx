@@ -19,7 +19,8 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "migrate:export": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/exportContent.ts",
     "migrate:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/importContent.ts",
-    "db:setup": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/ensureSchema.ts"
+    "db:setup": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/ensureSchema.ts",
+    "db:setup-remote": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/setupRemote.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.88.0",
