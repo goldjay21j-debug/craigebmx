@@ -22,7 +22,6 @@
     "db:setup": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/ensureSchema.ts"
   },
   "dependencies": {
-    "@netlify/database": "^2.0.0",
     "@payloadcms/db-postgres": "^3.88.0",
     "@payloadcms/db-sqlite": "3.88.0",
     "@payloadcms/email-nodemailer": "^3.88.0",
