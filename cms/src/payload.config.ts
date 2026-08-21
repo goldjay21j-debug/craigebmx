@@ -38,7 +38,9 @@ const allowedOrigins = Array.from(
 // --- Database -------------------------------------------------------------
 // A postgres:// URL selects Postgres (production); anything else keeps the
 // local SQLite file, so development is unaffected by production settings.
-const databaseURL = process.env.DATABASE_URL || ''
+// Netlify Database injects NETLIFY_DATABASE_URL automatically; every other
+// host uses DATABASE_URL. An explicit DATABASE_URL always wins.
+const databaseURL = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || ''
 const usePostgres =
   databaseURL.startsWith('postgres://') || databaseURL.startsWith('postgresql://')
 
