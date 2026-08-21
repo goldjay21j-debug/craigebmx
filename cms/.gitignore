@@ -56,3 +56,6 @@ node_modules/
 
 # Content migration output (large, regenerate with npm run migrate:export)
 /migration-export
+
+# Generated production env (contains a secret)
+/railway-env.txt

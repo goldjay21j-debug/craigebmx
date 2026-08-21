@@ -94,12 +94,24 @@ npm run migrate:import     # replays into whatever DATABASE_URL points at
 Run the import **once**, against the production database, with the S3 variables
 set so the images upload to the bucket rather than local disk.
 
-## 7. Deploy
+## 7. Deploy to Railway
 
-Railway: point it at this repo, set the **root directory** to `cms`, add all env
-vars above, deploy. It detects Next.js automatically.
+`railway.json` in this folder already sets the build and start commands. The
+start command is `npx next start -p $PORT` rather than the `npm start` script,
+because that script hardcodes port 3001 while Railway assigns a port at runtime.
 
-Docker (`cms/Dockerfile`) also works — it requires `output: 'standalone'`, which
+1. New Project -> Deploy from GitHub -> pick this repo
+2. Settings -> **Root Directory: `cms`** (without this it builds the storefront)
+3. Add a **Postgres** service; `DATABASE_URL` is injected automatically
+4. Variables -> Raw Editor -> paste the contents of `railway-env.txt`
+5. Deploy, then watch the log for "Ready"
+6. Settings -> Networking -> Custom Domain -> `admin.craigesbike.com`,
+   then add the CNAME it shows you at your DNS provider
+
+`railway-env.txt` is generated locally and gitignored because it contains the
+production secret. Do not commit it.
+
+Docker (`cms/Dockerfile`) also works; it requires `output: 'standalone'`, which
 is set in `next.config.ts`.
 
 ## Security checklist before going live
