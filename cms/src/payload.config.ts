@@ -2,6 +2,7 @@ import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { getConnectionString } from '@netlify/database'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -38,9 +39,23 @@ const allowedOrigins = Array.from(
 // --- Database -------------------------------------------------------------
 // A postgres:// URL selects Postgres (production); anything else keeps the
 // local SQLite file, so development is unaffected by production settings.
-// Netlify Database injects NETLIFY_DATABASE_URL automatically; every other
-// host uses DATABASE_URL. An explicit DATABASE_URL always wins.
-const databaseURL = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || ''
+// Netlify Database does NOT expose its connection string as an environment
+// variable -- it is only reachable through @netlify/database. Confirmed on the
+// deployed function, where no DATABASE/POSTGRES/NEON variable existed at all
+// even though the database was provisioned. Throws when there is no database
+// bound (e.g. local development), so it is probed defensively.
+const netlifyDatabaseURL = (() => {
+  try {
+    return getConnectionString() || ''
+  } catch {
+    return ''
+  }
+})()
+
+// An explicit DATABASE_URL always wins, so other hosts and local SQLite are
+// unaffected by the Netlify-specific lookup.
+const databaseURL =
+  process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || netlifyDatabaseURL || ''
 const usePostgres =
   databaseURL.startsWith('postgres://') || databaseURL.startsWith('postgresql://')
 
