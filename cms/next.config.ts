@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Required by ./Dockerfile and keeps the deployed image small.
+  output: 'standalone',
   images: {
     localPatterns: [
       {
