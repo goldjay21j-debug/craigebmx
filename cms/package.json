@@ -18,7 +18,8 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "migrate:export": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/exportContent.ts",
-    "migrate:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/importContent.ts"
+    "migrate:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/importContent.ts",
+    "db:setup": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/ensureSchema.ts"
   },
   "dependencies": {
     "@netlify/database": "^2.0.0",
