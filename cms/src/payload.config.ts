@@ -44,8 +44,15 @@ const databaseURL = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
 const usePostgres =
   databaseURL.startsWith('postgres://') || databaseURL.startsWith('postgresql://')
 
+// Payload disables schema push when NODE_ENV=production, expecting migrations
+// to have been run. This project has no migration history and the production
+// database starts empty, so push is opted into explicitly via PAYLOAD_DB_PUSH.
+// Once the schema is stable, generate real migrations and turn this off.
 const db = usePostgres
-  ? postgresAdapter({ pool: { connectionString: databaseURL } })
+  ? postgresAdapter({
+      pool: { connectionString: databaseURL },
+      ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
+    })
   : sqliteAdapter({ client: { url: databaseURL } })
 
 // --- Media storage --------------------------------------------------------
