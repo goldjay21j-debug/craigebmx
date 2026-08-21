@@ -1,0 +1,14 @@
+# Netlify site for the Payload admin.
+# This is a SECOND Netlify site, separate from the storefront:
+#   storefront site -> repo root, static export, publishes out/
+#   admin site      -> this folder, server-rendered via Netlify's Next runtime
+#
+# Critically, NETLIFY_NEXT_PLUGIN_SKIP is NOT set here. The storefront sets it
+# to disable server rendering; the admin needs server rendering to run at all.
+
+[build]
+  base = "cms"
+  command = "npm ci && npm run build"
+
+[build.environment]
+  NODE_VERSION = "22.13.0"

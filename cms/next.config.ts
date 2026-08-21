@@ -7,8 +7,11 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
-  // Required by ./Dockerfile and keeps the deployed image small.
-  output: 'standalone',
+  // Netlify's Next.js runtime manages its own output mode, so only opt into
+  // standalone for the Docker image (./Dockerfile requires it).
+  ...(process.env.NEXT_OUTPUT_STANDALONE === 'true'
+    ? { output: 'standalone' as const }
+    : {}),
   images: {
     localPatterns: [
       {

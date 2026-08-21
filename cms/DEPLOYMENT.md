@@ -94,7 +94,39 @@ npm run migrate:import     # replays into whatever DATABASE_URL points at
 Run the import **once**, against the production database, with the S3 variables
 set so the images upload to the bucket rather than local disk.
 
-## 7. Deploy to Railway
+## 7. Deploy to Netlify (recommended — the domain already lives there)
+
+Netlify can run Payload: it serves server-rendered Next.js through its Next.js
+runtime. The storefront only looks static because it opts out with
+`NETLIFY_NEXT_PLUGIN_SKIP` and `output: 'export'`.
+
+The admin needs its **own Netlify site**, because one site cannot both publish a
+static `out/` folder and server-render the admin:
+
+| Site | Base directory | Mode |
+|---|---|---|
+| `craigesbikes` (existing) | repo root | static export |
+| `craigesbikes-admin` (new) | `cms` | server-rendered |
+
+`cms/netlify.toml` already sets the base directory and build command, and
+deliberately does not set `NETLIFY_NEXT_PLUGIN_SKIP`.
+
+1. Netlify → Add new site → Import from GitHub → `craigebmx`
+2. **Base directory: `cms`** — it is picked up from `cms/netlify.toml`, but
+   confirm it in the UI
+3. Site configuration → Environment variables → add the contents of
+   `railway-env.txt` (the name is historical; the variables are host-agnostic)
+4. Add a Postgres database and set `DATABASE_URL` (Netlify DB, Neon or Supabase)
+5. Add the S3 variables — Netlify functions are ephemeral, so uploads must go to
+   a bucket or they vanish on redeploy
+6. Domain management → add `admin.craigesbike.com`. DNS is already on Netlify
+   for this domain, so no external CNAME is needed.
+
+Limits worth knowing: uploads are capped near 4.5 MB per request (every current
+media file is well under 300 KB), and functions have a 250 MB unzipped bundle
+limit. Cold starts add a second or two to the first admin page load.
+
+## 8. Deploy to Railway (alternative)
 
 `railway.json` in this folder already sets the build and start commands. The
 start command is `npx next start -p $PORT` rather than the `npm start` script,
