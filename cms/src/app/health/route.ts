@@ -1,39 +1,46 @@
 /**
- * Temporary deployment diagnostic. Reports only whether a database connection
- * is reachable and what scheme it uses — never the value itself. Delete once
- * the admin is confirmed working.
- *
- * Deliberately does not import payload.config: Payload is what fails, and
- * importing it would make this route fail the same way.
+ * Temporary deployment diagnostic. Reports connection reachability and the
+ * real Payload initialisation error, with any credentials scrubbed.
+ * Delete once the admin is confirmed working.
  */
 import { getConnectionString } from '@netlify/database'
 
 export const dynamic = 'force-dynamic'
 
-const describe = (value: string | undefined) => {
-  if (!value) return 'absent'
-  return `present (scheme=${value.split(':')[0]}, length=${value.length})`
-}
+/** Never let a connection string (which embeds a password) reach the response. */
+const scrub = (text: string) =>
+  text
+    .replace(/postgres(ql)?:\/\/[^\s"']+/gi, '[connection-string-redacted]')
+    .slice(0, 1500)
 
-export function GET() {
+export async function GET() {
   let netlifyDb: string
   try {
     const value = getConnectionString()
-    netlifyDb = describe(value)
+    netlifyDb = value ? `present (scheme=${value.split(':')[0]}, length=${value.length})` : 'absent'
   } catch (error) {
     netlifyDb = `threw ${(error as Error).constructor.name}`
   }
 
+  // Try a real Payload boot and surface whatever it actually complains about.
+  let payloadInit = 'not attempted'
+  try {
+    const [{ getPayload }, config] = await Promise.all([
+      import('payload'),
+      import('@payload-config').then((m) => m.default),
+    ])
+    const payload = await getPayload({ config })
+    const bikes = await payload.count({ collection: 'bikes', overrideAccess: true })
+    payloadInit = `OK — bikes table reachable, ${bikes.totalDocs} rows`
+  } catch (error) {
+    const e = error as Error
+    payloadInit = scrub(`${e.constructor.name}: ${e.message}\n--- stack ---\n${e.stack ?? ''}`)
+  }
+
   return Response.json({
     nodeEnv: process.env.NODE_ENV ?? 'unset',
-    // The one that matters: Netlify Database is only reachable via this call.
     netlifyGetConnectionString: netlifyDb,
-    DATABASE_URL: describe(process.env.DATABASE_URL),
-    NETLIFY_DATABASE_URL: describe(process.env.NETLIFY_DATABASE_URL),
-    PAYLOAD_SECRET: process.env.PAYLOAD_SECRET ? 'present' : 'absent',
     PAYLOAD_DB_PUSH: process.env.PAYLOAD_DB_PUSH ?? 'absent',
-    dbLikeKeys: Object.keys(process.env)
-      .filter((k) => /DATABASE|POSTGRES|NEON/i.test(k))
-      .sort(),
+    payloadInit,
   })
 }
