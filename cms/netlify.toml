@@ -1,0 +1,27 @@
+# Netlify site for the Payload admin (project: craigesbikes-admin).
+#
+# Separate from the storefront site:
+#   storefront -> repo root, static export, publishes out/
+#   admin      -> this folder, server-rendered via Netlify's Next runtime
+#
+# The admin is server-rendered: Payload's dashboard and REST API exist only as
+# serverless functions. If the Next.js plugin does not run, Netlify uploads this
+# directory as plain files and every route 404s -- which is exactly what
+# happened before the plugin was declared explicitly below.
+#
+# Schema now lives in Supabase and is created from a developer machine
+# (npm run db:setup-remote), so there is no build-time database step.
+
+[build]
+  base = "cms"
+  command = "npm ci --include=dev && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22.13.0"
+  # The storefront sets this to "true" to opt out of server rendering.
+  # The admin cannot run without it.
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

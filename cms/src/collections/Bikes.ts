@@ -117,6 +117,13 @@ export const Bikes: CollectionConfig = {
                   required: true,
                   defaultValue: 'available',
                   index: true,
+                  // Payload derives Postgres enum names from collection + field.
+                  // versions.drafts adds a "_status" field that claims
+                  // "enum_bikes_status" for draft/published, so this field must
+                  // be named explicitly or the two collide and table creation
+                  // fails with: invalid input value for enum enum_bikes_status.
+                  // SQLite stores selects as text, which is why local never hit it.
+                  enumName: 'enum_bikes_availability',
                   options: [
                     { label: 'Available', value: 'available' },
                     { label: 'Price on request', value: 'price-on-request' },
