@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { bikes, priceLabel } from "../products";
+import { priceLabel, statusBadge, type Bike } from "../../../lib/bike";
 
-const filters = ["All", "Freestyle", "Race", ...Array.from(new Set(bikes.map((bike) => bike.brand)))];
 
-export function ShopClient() {
+
+export function ShopClient({ bikes }: { bikes: Bike[] }) {
+  // Brands come from the catalogue, so a new brand becomes a filter as soon as
+  // a bike using it is published.
+  const filters = ["All", "Freestyle", "Race", ...Array.from(new Set(bikes.map((bike) => bike.brand)))];
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
 
@@ -67,7 +70,7 @@ export function ShopClient() {
               <article className="product-card" key={bike.id}>
                 <a className="product-image" href={`/shop/${bike.slug}`} aria-label={`View ${bike.name}`}>
                   <img src={bike.images[0]} alt={`${bike.name} BMX bicycle`} />
-                  <span className="listing-badge">{index % 3 === 0 ? "Featured" : "Collector grade"}</span>
+                  <span className={`listing-badge badge-${statusBadge(bike).tone}`}>{statusBadge(bike).label}</span>
                   <span className="photo-count">{bike.images.length} photos</span>
                 </a>
                 <div className="product-info">

@@ -51,7 +51,11 @@ const usePostgres =
 // Once the schema is stable, generate real migrations and turn this off.
 const db = usePostgres
   ? postgresAdapter({
-      pool: { connectionString: databaseURL },
+      // Supabase's session pooler allows 15 clients across the whole project.
+      // Next builds pages with several workers, and each worker keeps its own
+      // pool, so an uncapped pool exhausts the limit and the build dies with
+      // EMAXCONNSESSION. Keep each process small.
+      pool: { connectionString: databaseURL, max: 2 },
       ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
     })
   : sqliteAdapter({ client: { url: databaseURL } })

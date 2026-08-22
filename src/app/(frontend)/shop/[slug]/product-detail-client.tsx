@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { priceLabel, type Bike } from "../../products";
+import { priceLabel, statusBadge, type Bike } from "../../../../lib/bike";
 
 const WHATSAPP_NUMBER = "16089573848";
 
@@ -34,7 +34,7 @@ export function ProductDetailClient({ bike }: { bike: Bike }) {
         </div>
 
         <div className="standalone-details">
-          <span className="listing-badge standalone-badge">Collector grade</span>
+          <span className={`listing-badge standalone-badge badge-${statusBadge(bike).tone}`}>{statusBadge(bike).label}</span>
           <p className="standalone-kicker">{bike.year} · {bike.brand} · {bike.style}</p>
           <h1>{bike.name}</h1>
           <div className="standalone-price"><strong>{priceLabel(bike.price)}</strong><small>{bike.price === null ? "Contact us for current pricing and availability" : "USD · shipping confirmed separately"}</small></div>

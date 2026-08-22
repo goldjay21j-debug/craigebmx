@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" payload generate:importmap && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
@@ -17,8 +17,7 @@
     "db:setup-remote": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/setupRemote.ts",
     "media:sync": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/syncMediaToS3.ts",
     "migrate:export": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/exportContent.ts",
-    "migrate:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/importContent.ts",
-    "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seedCatalog.ts"
+    "migrate:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/importContent.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.88.0",

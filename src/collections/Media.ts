@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { isAdministrator } from '../access'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
@@ -11,7 +13,8 @@ export const Media: CollectionConfig = {
     read: () => true,
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    // A deleted image leaves every bike referencing it without a photo.
+    delete: isAdministrator,
   },
   fields: [
     {

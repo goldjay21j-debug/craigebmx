@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getBikes } from "../../../lib/catalogue";
 import { RevealEffects } from "../reveal-effects";
 import { StoreFooter } from "../store-footer";
 import { StoreHeader } from "../store-header";
@@ -85,7 +86,11 @@ const eras = [
   },
 ];
 
-export default function HistoryPage() {
+export const revalidate = 60;
+
+export default async function HistoryPage() {
+  const bikes = await getBikes();
+
   return (
     <div className="page-shell history-page">
       <StoreHeader />
@@ -172,7 +177,7 @@ export default function HistoryPage() {
           <a className="button button-white" href="/shop">Shop all classic bikes <span>→</span></a>
         </section>
       </main>
-      <StoreFooter />
+      <StoreFooter bikes={bikes} />
       <RevealEffects />
     </div>
   );

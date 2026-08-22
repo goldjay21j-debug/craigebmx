@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import type { CollectionConfig } from 'payload'
 
-import { isAuthenticated } from '../access'
+import { isAdministrator, isAuthenticated } from '../access'
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -16,7 +16,9 @@ export const Orders: CollectionConfig = {
     create: isAuthenticated,
     read: isAuthenticated,
     update: isAuthenticated,
-    delete: isAuthenticated,
+    // Editing and marking sold stay open to editors; permanent deletion,
+    // which also destroys version history, is administrators only.
+    delete: isAdministrator,
   },
   fields: [
     {

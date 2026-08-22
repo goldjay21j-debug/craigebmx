@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { bikes } from "../../products";
+import { getBike, getBikes } from "../../../../lib/catalogue";
 import { StoreFooter } from "../../store-footer";
 import { StoreHeader } from "../../store-header";
 import { ProductDetailClient } from "./product-detail-client";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
+// Pre-render the bikes that exist at build time; anything published later is
+// rendered on first request, then cached.
+export async function generateStaticParams() {
+  const bikes = await getBikes();
   return bikes.map((bike) => ({ slug: bike.slug }));
 }
 
+export const revalidate = 60;
+export const dynamicParams = true;
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const bike = bikes.find((item) => item.slug === slug);
+  const bike = await getBike(slug);
   if (!bike) return { title: "Bike not found | Craig's Bikes" };
 
   const title = `${bike.name} | Craig's Bikes`;
@@ -38,7 +44,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const bike = bikes.find((item) => item.slug === slug);
+  const [bike, bikes] = await Promise.all([getBike(slug), getBikes()]);
   if (!bike) notFound();
 
   const related = bikes.filter((item) => item.id !== bike.id && (item.style === bike.style || item.brand === bike.brand)).slice(0, 3);
@@ -65,7 +71,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </section>
       </main>
-      <StoreFooter />
+      <StoreFooter bikes={bikes} />
     </div>
   );
 }

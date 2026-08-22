@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { isAuthenticated } from '../access'
+import { isAdministrator, isAuthenticated } from '../access'
 
 const toSlug = (value = '') =>
   value
@@ -27,7 +27,9 @@ export const Bikes: CollectionConfig = {
     read: () => true,
     create: isAuthenticated,
     update: isAuthenticated,
-    delete: isAuthenticated,
+    // Editing and marking sold stay open to editors; permanent deletion,
+    // which also destroys version history, is administrators only.
+    delete: isAdministrator,
   },
   versions: {
     drafts: true,

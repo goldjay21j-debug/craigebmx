@@ -1,8 +1,9 @@
-import { bikes } from "./products";
+import type { Bike } from "../../lib/bike";
 
-const photoCount = bikes.reduce((total, bike) => total + bike.images.length, 0);
 
-export function StoreFooter() {
+
+export function StoreFooter({ bikes }: { bikes: Bike[] }) {
+  const photoCount = bikes.reduce((total, bike) => total + bike.images.length, 0);
   return (
     <footer>
       <div className="footer-top">

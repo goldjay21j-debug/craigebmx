@@ -475,3 +475,9 @@ footer { padding: 72px clamp(28px,7vw,112px) 30px; background: #050507; color: #
   .standalone-source { align-items: flex-start; flex-direction: column; gap: 7px; }
   .standalone-source a { min-height: 38px; display: flex; align-items: center; text-align: left; }
 }
+
+/* Availability badges. Sold and reserved bikes stay in the catalogue, so the
+   badge has to read clearly against the product photograph behind it. */
+.listing-badge.badge-sold { background: rgba(190, 32, 42, .88); border-color: rgba(255,255,255,.34); color: #fff; }
+.listing-badge.badge-reserved { background: rgba(196, 116, 12, .88); border-color: rgba(255,255,255,.34); color: #fff; }
+.product-card:has(.badge-sold) .product-image img { filter: saturate(.35) brightness(.92); }
