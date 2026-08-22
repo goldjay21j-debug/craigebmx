@@ -51,11 +51,26 @@ const usePostgres =
 // Once the schema is stable, generate real migrations and turn this off.
 const db = usePostgres
   ? postgresAdapter({
+      // Writes were timing out after 300s on Vercel. Payload wraps each write
+      // in a transaction, which holds one pooled connection open while the
+      // work inside it asks for more. Against a connection pooler that
+      // deadlocks: the transaction will not finish until it gets a connection,
+      // and no connection frees until the transaction finishes.
+      //
+      // Disabling transactions means a write is a sequence of statements
+      // rather than one atomic unit. For a single-editor catalogue that is the
+      // right trade; it is also what Payload recommends behind a pooler.
+      transactionOptions: false,
+
       // Supabase's session pooler allows 15 clients across the whole project.
-      // Next builds pages with several workers, and each worker keeps its own
-      // pool, so an uncapped pool exhausts the limit and the build dies with
-      // EMAXCONNSESSION. Keep each process small.
-      pool: { connectionString: databaseURL, max: 2 },
+      // A production build renders pages across seven workers, each holding
+      // its own pool, so it must stay small or the build dies with
+      // EMAXCONNSESSION. At runtime that cap is far too tight.
+      pool: {
+        connectionString: databaseURL,
+        max: process.env.NEXT_PHASE === 'phase-production-build' ? 2 : 8,
+        idleTimeoutMillis: 10_000,
+      },
       ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
     })
   : sqliteAdapter({ client: { url: databaseURL } })
