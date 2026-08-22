@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { getPayload } from 'payload'
 
-import { bikes } from '../../../app/products'
+import { bikes } from '../app/(frontend)/products'
 import config from '../payload.config'
 
 const payload = await getPayload({ config })
@@ -56,7 +56,7 @@ for (const bike of bikes) {
       | 'reissue'
       | 'collector-build',
     description: bike.description,
-    highlights: bike.highlights.map((text) => ({ text })),
+    highlights: bike.highlights.map((text: string) => ({ text })),
     primaryImage: mediaIDs[0],
     gallery: mediaIDs,
     featured: bike.id <= 6,

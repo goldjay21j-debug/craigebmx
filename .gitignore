@@ -42,3 +42,8 @@ yarn-error.log*
 
 # local preview process files
 .codex-dev.*
+
+# Payload media uploads (production uses S3; local disk only)
+/media
+# Content migration output
+/migration-export

@@ -19,7 +19,10 @@
     "incremental": true,
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
+      ],
+      "@payload-config": [
+        "./src/payload.config.ts"
       ]
     },
     "plugins": [
@@ -38,12 +41,11 @@
   ],
   "exclude": [
     "node_modules",
-    "cms",
     "build",
-    "db",
     "dist",
-    "drizzle.config.ts",
     "examples",
-    "worker"
+    "worker",
+    "db",
+    "drizzle.config.ts"
   ]
 }
