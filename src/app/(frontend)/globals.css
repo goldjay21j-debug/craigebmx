@@ -487,6 +487,11 @@ footer { padding: 72px clamp(28px,7vw,112px) 30px; background: #050507; color: #
    catalogue feel far smaller than it is. At half width the card internals
    have to shrink too, or they read as cramped rather than compact. */
 @media(max-width:780px){
+  /* The shop and related-bikes grids carry their own column rules, which are
+     the same specificity as the generic ones and appear later in the sheet, so
+     they must be named explicitly or they keep their single column. */
+  .shop-product-grid, .related-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+
   .product-card { border-radius: 20px; }
   .product-image { margin: 6px; width: calc(100% - 12px); border-radius: 15px; }
   .product-info { padding: 10px 12px 14px; }
@@ -508,6 +513,6 @@ footer { padding: 72px clamp(28px,7vw,112px) 30px; background: #050507; color: #
 
 /* Below ~360px two columns stop being readable, so fall back to one. */
 @media(max-width:340px){
-  .category-grid, .product-grid { grid-template-columns: 1fr; }
+  .category-grid, .product-grid, .shop-product-grid, .related-grid { grid-template-columns: 1fr; }
   .category-card { height: 300px; }
 }
