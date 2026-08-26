@@ -69,10 +69,16 @@ const db = usePostgres
       // keeps the total under the ceiling as instances scale up.
       pool: {
         connectionString: databaseURL,
-        max: 1,
+        // Supabase's two poolers have very different ceilings. Session mode
+        // (5432) allows 15 clients for the whole project, shared by every warm
+        // instance and every build worker, so a pool of one is all that is
+        // safe. Transaction mode (6543) is built for serverless and has no
+        // such limit, where a pool of one only makes queries queue behind each
+        // other until they time out.
+        max: databaseURL.includes(':6543/') ? 6 : 1,
         idleTimeoutMillis: 10_000,
-        // Never queue forever for a connection; surface it as an error instead.
-        connectionTimeoutMillis: 15_000,
+        // Generous, since a cold connection may still cross a continent.
+        connectionTimeoutMillis: 30_000,
       },
       ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
     })
