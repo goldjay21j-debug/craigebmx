@@ -13,7 +13,7 @@ import { cache } from 'react'
 
 import type { Bike } from './bike'
 
-type MediaLike = { url?: null | string; sourcePath?: null | string }
+type MediaLike = { filename?: null | string; url?: null | string; sourcePath?: null | string }
 
 /**
  * Payload returns an absolute URL built from serverURL, which is wrong whenever
@@ -29,9 +29,34 @@ const toPath = (value: string) => {
 }
 
 
+/**
+ * Public base URL of the media bucket, derived from the S3 endpoint so there is
+ * no second variable to keep in sync.
+ *   https://<ref>.supabase.co/storage/v1/s3
+ *   -> https://<ref>.supabase.co/storage/v1/object/public/<bucket>
+ */
+const publicMediaBase = (() => {
+  const endpoint = process.env.S3_ENDPOINT
+  const bucket = process.env.S3_BUCKET
+  if (!endpoint || !bucket) return null
+  const base = endpoint.replace(/\/+$/, '')
+  const suffix = '/storage/v1/s3'
+  const root = base.endsWith(suffix) ? base.slice(0, -suffix.length) : base
+  return `${root}/storage/v1/object/public/${bucket}`
+})()
+
 const resolveImage = (media: unknown): null | string => {
   if (!media || typeof media !== 'object') return null
   const doc = media as MediaLike
+
+  // Serve straight from the bucket's CDN. Payload's own /api/media/file route
+  // boots Payload and takes a database connection *per image*, so a page with
+  // seventeen photographs opened seventeen connections and blew past
+  // Supabase's 15-client limit -- every image then failed with a 500.
+  if (publicMediaBase && doc.filename) {
+    return `${publicMediaBase}/${encodeURIComponent(doc.filename)}`
+  }
+
   if (doc.url) return toPath(doc.url)
   // Photographs imported from the original storefront still sit in /public.
   if (doc.sourcePath) return doc.sourcePath

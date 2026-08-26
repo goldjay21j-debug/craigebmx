@@ -62,13 +62,14 @@ const db = usePostgres
       // right trade; it is also what Payload recommends behind a pooler.
       transactionOptions: false,
 
-      // Supabase's session pooler allows 15 clients across the whole project.
-      // A production build renders pages across seven workers, each holding
-      // its own pool, so it must stay small or the build dies with
-      // EMAXCONNSESSION. At runtime that cap is far too tight.
+      // Supabase's session pooler allows 15 clients across the entire project,
+      // shared by every build worker and every warm serverless instance. One
+      // connection each is what a serverless function actually needs, since it
+      // handles a single request at a time, and it is the only setting that
+      // keeps the total under the ceiling as instances scale up.
       pool: {
         connectionString: databaseURL,
-        max: process.env.NEXT_PHASE === 'phase-production-build' ? 2 : 8,
+        max: 1,
         idleTimeoutMillis: 10_000,
       },
       ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
