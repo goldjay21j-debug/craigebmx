@@ -98,6 +98,31 @@ const toBike = (doc: Record<string, any>): Bike => {
  * a product's related items all share one query rather than three.
  */
 export const getBikes = cache(async function getBikes(): Promise<Bike[]> {
+  try {
+    // A starved connection pool does not reject -- it waits. That is what made
+    // a build hang for seven minutes instead of failing, and it was
+    // self-inflicted: the running deployment held every connection, so the
+    // build meant to fix that could never finish and replace it. A deadline
+    // turns the hang into an empty render, and the pages fill in on the next
+    // request once connections are free again.
+    return await withDeadline(readBikes(), 20_000)
+  } catch (error) {
+    console.error('catalogue unavailable, rendering empty:', (error as Error).message)
+    return []
+  }
+})
+
+function withDeadline<T>(work: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms)
+    work.then(
+      (value) => { clearTimeout(timer); resolve(value) },
+      (error) => { clearTimeout(timer); reject(error) },
+    )
+  })
+}
+
+async function readBikes(): Promise<Bike[]> {
   const payload = await getPayload({ config })
 
   const { docs } = await payload.find({
@@ -111,7 +136,7 @@ export const getBikes = cache(async function getBikes(): Promise<Bike[]> {
   })
 
   return docs.map(toBike)
-})
+}
 
 /** Derived from the cached catalogue, so viewing a bike costs no extra query. */
 export async function getBike(slug: string): Promise<Bike | null> {

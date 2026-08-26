@@ -71,6 +71,8 @@ const db = usePostgres
         connectionString: databaseURL,
         max: 1,
         idleTimeoutMillis: 10_000,
+        // Never queue forever for a connection; surface it as an error instead.
+        connectionTimeoutMillis: 15_000,
       },
       ...(process.env.PAYLOAD_DB_PUSH === 'true' ? { push: true } : {}),
     })
