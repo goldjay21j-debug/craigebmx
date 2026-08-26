@@ -13,7 +13,7 @@ export function StoreFooter({ bikes }: { bikes: Bike[] }) {
       </div>
       <div className="footer-links">
         <nav aria-label="Footer marketplace links"><strong>Marketplace</strong><a href="/shop">All bikes</a><a href="/shop?style=Freestyle">Freestyle</a><a href="/shop?style=Race">Race</a></nav>
-        <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="/#confidence">Our standards</a><a href="/#process">How to buy</a><a href="https://wa.me/16089573848" target="_blank" rel="noreferrer">Contact support</a></nav>
+        <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="/return-policy">Returns &amp; refunds</a><a href="/#confidence">Our standards</a><a href="/#process">How to buy</a><a href="https://wa.me/16089573848" target="_blank" rel="noreferrer">Contact support</a></nav>
         <div><strong>Catalogued with care</strong><p>{bikes.length} classic bikes<br />{photoCount} catalogue photographs<br />Worldwide order support</p></div>
       </div>
       <div className="footer-bottom"><span>© {new Date().getFullYear()} Craig's Bikes</span><span>Old-school BMX · Built for collectors</span></div>

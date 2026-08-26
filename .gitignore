@@ -50,3 +50,6 @@ yarn-error.log*
 
 # TypeScript incremental build cache
 tsconfig.tsbuildinfo
+
+# Google Merchant feed (regenerate with the feed script)
+/google-merchant-products.csv
