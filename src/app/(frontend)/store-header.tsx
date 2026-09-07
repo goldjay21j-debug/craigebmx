@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const WHATSAPP_NUMBER = "16089573848";
+import { emailLink } from "../../lib/contact";
 
 export function StoreHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,9 +30,9 @@ export function StoreHeader() {
       </nav>
 
       <div className="header-actions">
-        <a className="support-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craig's Bikes. I need help choosing a BMX bike.")}`} target="_blank" rel="noreferrer">Support</a>
-        <a className="store-chat-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Craig's Bikes. I have a question about the collection.")}`} target="_blank" rel="noreferrer">
-          <span>W</span><strong>Chat</strong>
+        <a className="support-link" href={emailLink("Help choosing a BMX bike", "Hello Craig's Bikes,\n\nI need help choosing a BMX bike.\n")}>Support</a>
+        <a className="store-chat-link" href={emailLink("Question about the collection", "Hello Craig's Bikes,\n\nI have a question about the collection.\n")}>
+          <span>@</span><strong>Email</strong>
         </a>
       </div>
     </header>

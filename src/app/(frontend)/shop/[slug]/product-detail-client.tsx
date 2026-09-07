@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { priceLabel, statusBadge, type Bike } from "../../../../lib/bike";
-
-const WHATSAPP_NUMBER = "16089573848";
+import { emailLink } from "../../../../lib/contact";
 
 export function ProductDetailClient({ bike }: { bike: Bike }) {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -45,19 +44,12 @@ export function ProductDetailClient({ bike }: { bike: Bike }) {
             {bike.highlights.map((highlight) => <p key={highlight}><span>✓</span>{highlight}</p>)}
           </div>
 
-          {bike.sourceUrl && (
-            <div className="standalone-source">
-              <span>Archive source</span>
-              <a href={bike.sourceUrl} target="_blank" rel="noreferrer">{bike.sourceLabel ?? "View original profile"} ↗</a>
-            </div>
-          )}
-
           <div className="standalone-service">
             <span>↗</span>
             <p><strong>Worldwide order support</strong><small>Availability, shipping and secure payment are confirmed personally before dispatch.</small></p>
           </div>
 
-          <a className="button button-blue standalone-order" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderMessage)}`} target="_blank" rel="noreferrer">Check availability &amp; order <span>↗</span></a>
+          <a className="button button-blue standalone-order" href={emailLink(`Enquiry: ${bike.name}`, orderMessage)}>Check availability &amp; order <span>↗</span></a>
           <a className="standalone-back" href="/shop">← Back to all bikes</a>
         </div>
       </section>

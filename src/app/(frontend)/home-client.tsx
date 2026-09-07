@@ -2,8 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { currency, priceLabel, statusBadge, type Bike } from "../../lib/bike";
-
-const WHATSAPP_NUMBER = "16089573848";
+import { emailLink } from "../../lib/contact";
 
 
 const heroSlides = [
@@ -45,9 +44,6 @@ const heroSlides = [
   },
 ];
 
-function whatsappLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-}
 
 export function HomeClient({ bikes, featuredBikes }: { bikes: Bike[]; featuredBikes: Bike[] }) {
   const photoCount = bikes.reduce((total, bike) => total + bike.images.length, 0);
@@ -238,7 +234,7 @@ export function HomeClient({ bikes, featuredBikes }: { bikes: Bike[]; featuredBi
           </nav>
 
           <div className="header-actions">
-            <a className="support-link" href={whatsappLink("Hello Craig's Bikes. I need help choosing a BMX bike.")} target="_blank" rel="noreferrer">Support</a>
+            <a className="support-link" href={emailLink("Help choosing a BMX bike", "Hello Craig's Bikes,\n\nI need help choosing a BMX bike.\n")}>Support</a>
             <button className="cart-button" type="button" onClick={() => setDrawerOpen(true)} aria-label={`Open cart with ${cart.length} items`}>
               <span aria-hidden="true">▱</span>
               <strong>Cart</strong>
@@ -422,7 +418,7 @@ export function HomeClient({ bikes, featuredBikes }: { bikes: Bike[]; featuredBi
 
         <section className="service-section" data-reveal>
           <div><span className="eyebrow"><i /> Personal service</span><h2>Talk to a real collector.</h2><p>Tell us what you collect, what you used to ride, or which details you want checked. We’ll help you choose with confidence.</p></div>
-          <a className="button button-blue" href={whatsappLink("Hello Craig's Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer">Chat with Craig's Bikes <span>↗</span></a>
+          <a className="button button-blue" href={emailLink("Question about a bike", "Hello Craig's Bikes,\n\nI have a question about a bike on the website.\n")}>Email Craig's Bikes <span>↗</span></a>
         </section>
 
         <footer>
@@ -433,14 +429,14 @@ export function HomeClient({ bikes, featuredBikes }: { bikes: Bike[]; featuredBi
           </div>
           <div className="footer-links">
             <nav aria-label="Footer marketplace links"><strong>Marketplace</strong><a href="/shop">All bikes</a><a href="/shop?style=Freestyle">Freestyle</a><a href="/shop?style=Race">Race</a></nav>
-            <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="#confidence">Our standards</a><a href="#process">How to buy</a><a href={whatsappLink("Hello Craig's Bikes. I need support.")} target="_blank" rel="noreferrer">Contact support</a></nav>
+            <nav aria-label="Footer information links"><strong>Information</strong><a href="/history">BMX history</a><a href="#confidence">Our standards</a><a href="#process">How to buy</a><a href="/return-policy">Returns &amp; refunds</a><a href={emailLink("Support request", "Hello Craig's Bikes,\n\n")}>Contact support</a></nav>
             <div><strong>Catalogued with care</strong><p>{bikes.length} classic bikes<br />{photoCount} catalogue photographs<br />Worldwide order support</p></div>
           </div>
           <div className="footer-bottom"><span>© {new Date().getFullYear()} Craig's Bikes</span><span>Old-school BMX · Built for collectors</span></div>
         </footer>
       </div>
 
-      <a className="whatsapp-float" href={whatsappLink("Hello Craig's Bikes. I have a question about a bike on the website.")} target="_blank" rel="noreferrer" aria-label="Contact Craig's Bikes on WhatsApp"><span>W</span><strong>Bike support</strong></a>
+      <a className="contact-float" href={emailLink("Question about a bike", "Hello Craig's Bikes,\n\nI have a question about a bike on the website.\n")} aria-label="Email Craig's Bikes"><span>@</span><strong>Bike support</strong></a>
 
       {selectedBike && (
         <div className="product-shell" role="dialog" aria-modal="true" aria-labelledby="product-title">
@@ -481,7 +477,7 @@ export function HomeClient({ bikes, featuredBikes }: { bikes: Bike[]; featuredBi
             {cartItems.length ? <>
               <div className="drawer-items">{cartItems.map((bike) => <div className="drawer-item" key={bike.id}><img src={bike.images[0]} alt="" /><div><span>{bike.year} · {bike.brand}</span><strong>{bike.name}</strong><em>{priceLabel(bike.price)}</em></div><button type="button" onClick={() => removeFromCart(bike)} aria-label={`Remove ${bike.name}`}>×</button></div>)}</div>
               <div className="cart-total"><span>Subtotal{hasPriceOnRequest && <small> + price on request</small>}</span><strong>{currency.format(subtotal)} <small>USD</small></strong></div>
-              <a className="button button-blue drawer-action" href={whatsappLink(orderMessage)} target="_blank" rel="noreferrer">Continue to order review</a>
+              <a className="button button-blue drawer-action" href={emailLink("Order enquiry", orderMessage)}>Continue to order review</a>
               <p className="drawer-note">Final availability, shipping and payment are confirmed before dispatch.</p>
             </> : <div className="empty-cart"><span>▱</span><h3>Your cart is empty</h3><p>Add a classic bike to begin your order.</p><button type="button" onClick={() => setDrawerOpen(false)}>Browse the collection</button></div>}
           </aside>

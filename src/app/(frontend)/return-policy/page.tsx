@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getBikes } from "../../../lib/catalogue";
+import { CONTACT_EMAIL, emailLink } from "../../../lib/contact";
 import { StoreFooter } from "../store-footer";
 import { StoreHeader } from "../store-header";
 
@@ -107,10 +108,17 @@ export default async function ReturnPolicyPage() {
             <h2>Contact</h2>
             <p>
               If you have questions about a return or need to request a return, please contact
-              Craig&rsquo;s Bikes through our website support channel.
+              Craig&rsquo;s Bikes by email at{" "}
+              <a href={emailLink("Return request")}>{CONTACT_EMAIL}</a>.
             </p>
-            <a className="button button-blue" href="https://wa.me/16089573848" target="_blank" rel="noreferrer">
-              Contact support <span>→</span>
+            <a
+              className="button button-blue"
+              href={emailLink(
+                "Return request",
+                "Hello Craig's Bikes,\n\nI would like to ask about a return.\n\nOrder reference:\nBike:\nReason:\n",
+              )}
+            >
+              Email us about a return <span>→</span>
             </a>
           </section>
         </article>

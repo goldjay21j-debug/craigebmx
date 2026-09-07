@@ -22,9 +22,9 @@ export const SiteSettings: GlobalConfig = {
         { name: 'currency', type: 'select', required: true, defaultValue: 'USD', options: ['USD', 'EUR', 'GBP'], admin: { width: '50%' } },
       ],
     },
-    { name: 'contactEmail', type: 'email' },
+    { name: 'contactEmail', type: 'email', defaultValue: 'info@craigesbike.com' },
     { name: 'announcement', type: 'text', defaultValue: 'Worldwide shipping available on collector BMX bikes.' },
-    { name: 'shippingNote', type: 'textarea', defaultValue: 'Shipping quotes are confirmed through WhatsApp before payment.' },
+    { name: 'shippingNote', type: 'textarea', defaultValue: 'Shipping quotes are confirmed by email before payment.' },
     {
       name: 'homepageFeatured',
       type: 'relationship',
