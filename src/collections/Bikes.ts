@@ -192,13 +192,25 @@ export const Bikes: CollectionConfig = {
               type: 'upload',
               relationTo: 'media',
               required: true,
+              admin: {
+                description: 'The single photo used on shop cards, the homepage and link previews.',
+              },
             },
             {
+              // An upload field, not a relationship. A relationship can only
+              // pick media that already exists, which meant photographing a new
+              // bike involved uploading each shot to Media first and then
+              // coming back here to select them one by one. This uploads them
+              // in place, several at a time.
               name: 'gallery',
-              type: 'relationship',
+              type: 'upload',
               relationTo: 'media',
               hasMany: true,
               required: true,
+              admin: {
+                description:
+                  'Every photograph for this bike. Drop several in at once, and drag to reorder — the first is shown first.',
+              },
             },
           ],
         },
@@ -215,10 +227,13 @@ export const Bikes: CollectionConfig = {
             {
               name: 'sourceLabel',
               type: 'text',
+              // Keep import provenance for staff, not in the public catalogue API.
+              access: { read: ({ req }) => Boolean(req.user) },
             },
             {
               name: 'sourceUrl',
               type: 'text',
+              access: { read: ({ req }) => Boolean(req.user) },
               validate: (value: null | string | undefined) =>
                 !value || /^https?:\/\//.test(value) || 'Enter a complete URL beginning with http:// or https://',
             },
