@@ -54,10 +54,17 @@ export const Bikes: CollectionConfig = {
               unique: true,
               index: true,
               hooks: {
-                beforeValidate: [({ data, value }) => value || toSlug(data?.name)],
+                // Always normalise, rather than only filling in a blank field.
+                // Previously anything typed here was stored verbatim, so
+                // entering the bike's name produced a slug containing spaces
+                // and capitals -- the listing linked to it, but the product
+                // page returned 404. toSlug is idempotent, so an already valid
+                // slug passes through untouched and existing URLs are safe.
+                beforeValidate: [({ data, value }) => toSlug(value || data?.name || '')],
               },
               admin: {
-                description: 'Used in the bike’s website URL. Leave blank to generate it from the name.',
+                description:
+                  'The bike’s website address. Leave blank to build it from the name — spaces and capitals are converted automatically.',
               },
             },
             {
